@@ -1,0 +1,18 @@
+# THIS FILE WAS AUTOMATICALLY GENERATED, PLEASE DO NOT EDIT.
+#
+# Generated on 2021-05-04T14:58:40Z by kres 1844a99-dirty.
+
+**
+!kmsg.go
+!message.go
+!message_test.go
+!reader.go
+!reader_test.go
+!utils.go
+!writer.go
+!writer_test.go
+!go.mod
+!go.sum
+!.golangci.yml
+!README.md
+!.markdownlint.json
