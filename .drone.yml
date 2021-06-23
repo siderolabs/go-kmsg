@@ -1,7 +1,7 @@
 ---
 # THIS FILE WAS AUTOMATICALLY GENERATED, PLEASE DO NOT EDIT.
 #
-# Generated on 2021-05-04T14:49:49Z by kres 1844a99-dirty.
+# Generated on 2021-06-23T20:37:16Z by kres latest.
 
 kind: pipeline
 type: kubernetes
@@ -121,6 +121,56 @@ steps:
     path: /root/.ssh
   depends_on:
   - base
+
+- name: release-notes
+  pull: always
+  image: autonomy/build-container:latest
+  commands:
+  - make release-notes
+  volumes:
+  - name: outer-docker-socket
+    path: /var/outer-run
+  - name: docker-socket
+    path: /var/run
+  - name: buildx
+    path: /root/.docker/buildx
+  - name: ssh
+    path: /root/.ssh
+  when:
+    event:
+    - tag
+  depends_on:
+  - unit-tests
+  - coverage
+  - lint
+
+- name: release
+  pull: always
+  image: plugins/github-release
+  settings:
+    api_key:
+      from_secret: github_token
+    checksum:
+    - sha256
+    - sha512
+    draft: true
+    files:
+    - _out/*
+    note: _out/RELEASE_NOTES.md
+  volumes:
+  - name: outer-docker-socket
+    path: /var/outer-run
+  - name: docker-socket
+    path: /var/run
+  - name: buildx
+    path: /root/.docker/buildx
+  - name: ssh
+    path: /root/.ssh
+  when:
+    event:
+    - tag
+  depends_on:
+  - release-notes
 
 services:
 - name: docker

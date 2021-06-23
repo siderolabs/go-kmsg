@@ -2,7 +2,7 @@
 
 # THIS FILE WAS AUTOMATICALLY GENERATED, PLEASE DO NOT EDIT.
 #
-# Generated on 2021-05-04T14:58:40Z by kres 1844a99-dirty.
+# Generated on 2021-06-23T20:37:16Z by kres latest.
 
 ARG TOOLCHAIN
 
@@ -16,7 +16,7 @@ RUN npm i sentences-per-line@0.2.1
 WORKDIR /src
 COPY .markdownlint.json .
 COPY ./README.md ./README.md
-RUN markdownlint --ignore "**/node_modules/**" --ignore '**/hack/chglog/**' --rules /node_modules/sentences-per-line/index.js .
+RUN markdownlint --ignore "CHANGELOG.md" --ignore "**/node_modules/**" --ignore '**/hack/chglog/**' --rules /node_modules/sentences-per-line/index.js .
 
 # base toolchain image
 FROM ${TOOLCHAIN} AS toolchain
@@ -54,6 +54,7 @@ RUN --mount=type=cache,target=/go/pkg go list -mod=readonly all >/dev/null
 # runs gofumpt
 FROM base AS lint-gofumpt
 RUN find . -name '*.pb.go' | xargs -r rm
+RUN find . -name '*.pb.gw.go' | xargs -r rm
 RUN FILES="$(gofumports -l -local github.com/talos-systems/go-kmsg .)" && test -z "${FILES}" || (echo -e "Source code is not formatted with 'gofumports -w -local github.com/talos-systems/go-kmsg .':\n${FILES}"; exit 1)
 
 # runs golangci-lint

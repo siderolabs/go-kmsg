@@ -33,6 +33,10 @@ func (w *Writer) Write(p []byte) (n int, err error) {
 			line = append(line[:MaxLineLength-4], []byte("...\n")...)
 		}
 
+		// replace tab characters from multierror library error messages with spaces,
+		// as tabs are not visible in the console
+		line = bytes.ReplaceAll(line, []byte{'\t'}, []byte{' '})
+
 		var nn int
 		nn, err = w.KmsgWriter.Write(line)
 
@@ -43,11 +47,11 @@ func (w *Writer) Write(p []byte) (n int, err error) {
 		}
 
 		if err != nil {
-			return
+			return n, err
 		}
 
 		p = p[i+1:]
 	}
 
-	return
+	return n, err
 }
