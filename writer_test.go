@@ -43,8 +43,8 @@ func TestWriter(t *testing.T) {
 	assert.Equal(t, kmsg.MaxLineLength, n)
 	assert.NoError(t, err)
 
-	n, err = kmsgW.Write(append(bytes.Repeat([]byte{0xce}, kmsg.MaxLineLength), '\n', 'a', 'b', '\n'))
-	assert.Equal(t, kmsg.MaxLineLength+4, n)
+	n, err = kmsgW.Write(append(bytes.Repeat([]byte{0xce}, kmsg.MaxLineLength), '\n', 'a', '\t', 'b', '\n'))
+	assert.Equal(t, kmsg.MaxLineLength+5, n)
 	assert.NoError(t, err)
 
 	assert.Len(t, fakeW.lines, 7)
@@ -54,5 +54,5 @@ func TestWriter(t *testing.T) {
 	assert.Equal(t, fakeW.lines[3], []byte("bar\n"))
 	assert.Equal(t, fakeW.lines[4], append(bytes.Repeat([]byte{0xce}, kmsg.MaxLineLength-1), '\n'))
 	assert.Equal(t, fakeW.lines[5], append(bytes.Repeat([]byte{0xce}, kmsg.MaxLineLength-4), '.', '.', '.', '\n'))
-	assert.Equal(t, fakeW.lines[6], []byte("ab\n"))
+	assert.Equal(t, fakeW.lines[6], []byte("a b\n"))
 }
