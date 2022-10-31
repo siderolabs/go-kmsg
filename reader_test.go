@@ -13,7 +13,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/talos-systems/go-kmsg"
+	"github.com/siderolabs/go-kmsg"
 )
 
 //nolint:thelper

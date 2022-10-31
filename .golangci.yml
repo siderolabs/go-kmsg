@@ -1,7 +1,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED, PLEASE DO NOT EDIT.
 #
-# Generated on 2021-05-04T14:49:49Z by kres 1844a99-dirty.
-
+# Generated on 2022-10-31T18:04:22Z by kres 03328da.
 
 # options for analysis running
 run:
@@ -22,7 +21,6 @@ output:
   uniq-by-line: true
   path-prefix: ""
 
-
 # all available settings of specific linters
 linters-settings:
   dogsled:
@@ -38,9 +36,16 @@ linters-settings:
     lines: 60
     statements: 40
   gci:
-    local-prefixes: github.com/talos-systems/go-kmsg
+    local-prefixes: github.com/siderolabs/go-kmsg
   gocognit:
     min-complexity: 30
+  ireturn:
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+      - github.com\/talos-systems\/kres\/internal\/dag.Node
   nestif:
     min-complexity: 5
   goconst:
@@ -60,7 +65,7 @@ linters-settings:
   gofmt:
     simplify: true
   goimports:
-    local-prefixes: github.com/talos-systems/go-kmsg
+    local-prefixes: github.com/siderolabs/go-kmsg
   golint:
     min-confidence: 0.8
   gomnd:
@@ -91,7 +96,7 @@ linters-settings:
     require-explanation: false
     require-specific: true
   rowserrcheck: {}
-  testpackage:
+  testpackage: {}
   unparam:
     check-exported: false
   unused:
@@ -116,23 +121,35 @@ linters-settings:
 
 linters:
   enable-all: true
-  disable:
-    - gas
-    - typecheck
-    - gochecknoglobals
-    - gochecknoinits
-    - funlen
-    - godox
-    - gomnd
-    - goerr113
-    - nestif
-    - wrapcheck
-    - paralleltest
-    - exhaustivestruct
-    - forbidigo
   disable-all: false
   fast: false
-
+  disable:
+    - exhaustruct
+    - exhaustivestruct
+    - forbidigo
+    - funlen
+    - gas
+    - gochecknoglobals
+    - gochecknoinits
+    - godox
+    - goerr113
+    - gomnd
+    - gomoddirectives
+    - ireturn
+    - nestif
+    - nonamedreturns
+    - nosnakecase
+    - paralleltest
+    - tagliatelle
+    - thelper
+    - typecheck
+    - varnamelen
+    - wrapcheck
+    # abandoned linters for which golangci shows the warning that the repo is archived by the owner
+    - interfacer
+    - maligned
+    - golint
+    - scopelint
 
 issues:
   exclude: []
@@ -141,10 +158,8 @@ issues:
   exclude-case-sensitive: false
   max-issues-per-linter: 10
   max-same-issues: 3
-
   new: false
 
 severity:
   default-severity: error
-
   case-sensitive: false
