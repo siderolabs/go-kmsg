@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/goleak"
 
 	"github.com/siderolabs/go-kmsg"
 )
@@ -28,6 +29,8 @@ func skipIfNoKmsg(t *testing.T) {
 
 func TestReaderNoFollow(t *testing.T) {
 	skipIfNoKmsg(t)
+
+	defer goleak.VerifyNone(t, goleak.IgnoreCurrent())
 
 	r, err := kmsg.NewReader()
 	assert.NoError(t, err)
@@ -58,6 +61,8 @@ func TestReaderFollowTail(t *testing.T) {
 //nolint:thelper
 func testReaderFollow(t *testing.T, expectMessages bool, options ...kmsg.Option) {
 	skipIfNoKmsg(t)
+
+	defer goleak.VerifyNone(t, goleak.IgnoreCurrent())
 
 	r, err := kmsg.NewReader(append([]kmsg.Option{kmsg.Follow()}, options...)...)
 	assert.NoError(t, err)

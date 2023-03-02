@@ -12,6 +12,8 @@ import (
 	"os"
 	"syscall"
 	"time"
+
+	"github.com/siderolabs/gen/channel"
 )
 
 // Packet combines Message and error.
@@ -77,7 +79,7 @@ func NewReader(options ...Option) (Reader, error) {
 	}
 
 	if r.options.tail {
-		_, err = r.f.Seek(0, os.SEEK_END)
+		_, err = r.f.Seek(0, io.SeekEnd)
 		if err != nil {
 			r.f.Close() //nolint:errcheck
 
@@ -116,12 +118,9 @@ func (r *reader) scanNoFollow(ctx context.Context, ch chan<- Packet) {
 	fd := int(r.f.Fd())
 
 	if err := syscall.SetNonblock(fd, true); err != nil {
-		select {
-		case ch <- Packet{
+		channel.SendWithContext(ctx, ch, Packet{
 			Err: fmt.Errorf("error switching to nonblock mode: %w", err),
-		}:
-		case <-ctx.Done():
-		}
+		})
 
 		return
 	}
@@ -141,12 +140,9 @@ func (r *reader) scanNoFollow(ctx context.Context, ch chan<- Packet) {
 				continue
 			}
 
-			select {
-			case ch <- Packet{
+			channel.SendWithContext(ctx, ch, Packet{
 				Err: fmt.Errorf("error reading from kmsg: %w", err),
-			}:
-			case <-ctx.Done():
-			}
+			})
 
 			return
 		}
@@ -154,9 +150,8 @@ func (r *reader) scanNoFollow(ctx context.Context, ch chan<- Packet) {
 		var packet Packet
 		packet.Message, packet.Err = ParseMessage(string(buf[:n]), r.bootTime)
 
-		select {
-		case ch <- packet:
-		case <-ctx.Done():
+		if !channel.SendWithContext(ctx, ch, packet) {
+			return
 		}
 	}
 }
@@ -179,12 +174,9 @@ func (r *reader) scanFollow(ctx context.Context, ch chan<- Packet) {
 				continue
 			}
 
-			select {
-			case ch <- Packet{
+			channel.SendWithContext(ctx, ch, Packet{
 				Err: fmt.Errorf("error reading from kmsg: %w", err),
-			}:
-			case <-ctx.Done():
-			}
+			})
 
 			return
 		}
@@ -192,9 +184,8 @@ func (r *reader) scanFollow(ctx context.Context, ch chan<- Packet) {
 		var packet Packet
 		packet.Message, packet.Err = ParseMessage(string(buf[:n]), r.bootTime)
 
-		select {
-		case ch <- packet:
-		case <-ctx.Done():
+		if !channel.SendWithContext(ctx, ch, packet) {
+			return
 		}
 	}
 }
