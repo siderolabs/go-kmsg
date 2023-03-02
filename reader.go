@@ -157,6 +157,7 @@ func (r *reader) scanNoFollow(ctx context.Context, ch chan<- Packet) {
 		select {
 		case ch <- packet:
 		case <-ctx.Done():
+			return
 		}
 	}
 }
@@ -195,6 +196,7 @@ func (r *reader) scanFollow(ctx context.Context, ch chan<- Packet) {
 		select {
 		case ch <- packet:
 		case <-ctx.Done():
+			return
 		}
 	}
 }
