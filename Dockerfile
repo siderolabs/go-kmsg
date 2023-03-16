@@ -2,7 +2,7 @@
 
 # THIS FILE WAS AUTOMATICALLY GENERATED, PLEASE DO NOT EDIT.
 #
-# Generated on 2023-03-02T13:41:04Z by kres latest.
+# Generated on 2023-03-17T16:37:39Z by kres 6bde0cc.
 
 ARG TOOLCHAIN
 
@@ -55,7 +55,8 @@ COPY ./message.go ./message.go
 COPY ./message_test.go ./message_test.go
 COPY ./reader.go ./reader.go
 COPY ./reader_test.go ./reader_test.go
-COPY ./utils.go ./utils.go
+COPY ./utils_bsd.go ./utils_bsd.go
+COPY ./utils_linux.go ./utils_linux.go
 COPY ./writer.go ./writer.go
 COPY ./writer_test.go ./writer_test.go
 RUN --mount=type=cache,target=/go/pkg go list -mod=readonly all >/dev/null
