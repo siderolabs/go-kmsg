@@ -1,12 +1,12 @@
 module github.com/siderolabs/go-kmsg
 
-go 1.20
+go 1.21.5
 
 require (
-	github.com/siderolabs/gen v0.4.3
-	github.com/stretchr/testify v1.8.2
-	go.uber.org/goleak v1.2.1
-	golang.org/x/sys v0.5.0
+	github.com/siderolabs/gen v0.4.7
+	github.com/stretchr/testify v1.8.4
+	go.uber.org/goleak v1.3.0
+	golang.org/x/sys v0.16.0
 )
 
 require (

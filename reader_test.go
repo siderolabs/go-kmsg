@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 
 	"github.com/siderolabs/go-kmsg"
@@ -33,21 +34,21 @@ func TestReaderNoFollow(t *testing.T) {
 	defer goleak.VerifyNone(t, goleak.IgnoreCurrent())
 
 	r, err := kmsg.NewReader()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	defer r.Close() //nolint:errcheck
 
 	messageCount := 0
 
 	for packet := range r.Scan(context.Background()) {
-		assert.NoError(t, packet.Err)
+		require.NoError(t, packet.Err)
 
 		messageCount++
 	}
 
 	assert.Greater(t, messageCount, 0)
 
-	assert.NoError(t, r.Close())
+	require.NoError(t, r.Close())
 }
 
 func TestReaderFollow(t *testing.T) {

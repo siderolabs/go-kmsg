@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/siderolabs/go-kmsg"
 )
@@ -51,9 +52,20 @@ func TestParseMessage(t *testing.T) {
 				Message:        "NET: Registered protocol family 10",
 			},
 		},
+		{
+			input: `6,339,5140900,-;NET: Registered protocol family \\10\\ in \xc2\xB5s`,
+			expected: kmsg.Message{
+				Facility:       kmsg.Kern,
+				Priority:       kmsg.Info,
+				SequenceNumber: 339,
+				Clock:          5140900,
+				Timestamp:      mustParse("0001-01-01 00:00:05.1409 +0000 UTC"),
+				Message:        "NET: Registered protocol family \\10\\ in µs",
+			},
+		},
 	} {
-		message, err := kmsg.ParseMessage(testCase.input, time.Time{})
-		assert.NoError(t, err)
+		message, err := kmsg.ParseMessage([]byte(testCase.input), time.Time{})
+		require.NoError(t, err)
 
 		assert.Equal(t, testCase.expected, message)
 	}

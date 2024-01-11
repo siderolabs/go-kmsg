@@ -148,7 +148,7 @@ func (r *reader) scanNoFollow(ctx context.Context, ch chan<- Packet) {
 		}
 
 		var packet Packet
-		packet.Message, packet.Err = ParseMessage(string(buf[:n]), r.bootTime)
+		packet.Message, packet.Err = ParseMessage(buf[:n], r.bootTime)
 
 		if !channel.SendWithContext(ctx, ch, packet) {
 			return
@@ -182,7 +182,7 @@ func (r *reader) scanFollow(ctx context.Context, ch chan<- Packet) {
 		}
 
 		var packet Packet
-		packet.Message, packet.Err = ParseMessage(string(buf[:n]), r.bootTime)
+		packet.Message, packet.Err = ParseMessage(buf[:n], r.bootTime)
 
 		if !channel.SendWithContext(ctx, ch, packet) {
 			return

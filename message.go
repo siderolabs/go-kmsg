@@ -5,6 +5,7 @@
 package kmsg
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
@@ -81,15 +82,13 @@ type Message struct {
 // ParseMessage parses internal kernel log format.
 //
 // Reference: https://www.kernel.org/doc/Documentation/ABI/testing/dev-kmsg
-func ParseMessage(input string, bootTime time.Time) (Message, error) {
-	parts := strings.SplitN(input, ";", 2)
-	if len(parts) != 2 {
+func ParseMessage(input []byte, bootTime time.Time) (Message, error) {
+	prefix, message, ok := bytes.Cut(input, []byte(";"))
+	if !ok {
 		return Message{}, fmt.Errorf("kernel message should contain a prefix")
 	}
 
-	prefix, message := parts[0], parts[1]
-
-	metadata := strings.Split(prefix, ",")
+	metadata := strings.Split(string(prefix), ",")
 	if len(metadata) < 3 {
 		return Message{}, fmt.Errorf("message metdata should have at least 3 parts, got %d", len(metadata))
 	}
@@ -115,6 +114,84 @@ func ParseMessage(input string, bootTime time.Time) (Message, error) {
 		SequenceNumber: sequence,
 		Clock:          clock,
 		Timestamp:      bootTime.Add(time.Duration(clock) * time.Microsecond),
-		Message:        message,
+		Message:        unescape(message),
 	}, nil
+}
+
+// unescape converts C-style \xXX to byte value, \\ to \, and passes everything else through.
+//
+//nolint:gocyclo,cyclop
+func unescape(message []byte) string {
+	var b strings.Builder
+
+	b.Grow(len(message))
+
+	const (
+		stateRaw = iota
+		stateSlash
+		stateHex1
+		stateHex2
+	)
+
+	var (
+		hexVal byte
+		state  int
+	)
+
+	for _, c := range message {
+		switch state {
+		case stateRaw:
+			if c == '\\' {
+				state = stateSlash
+			} else {
+				b.WriteByte(c)
+			}
+		case stateSlash:
+			switch c {
+			case 'x':
+				state = stateHex1
+				hexVal = 0
+			case '\\':
+				b.WriteByte('\\')
+
+				state = stateRaw
+			default:
+				// invalid escape sequence, ignore
+				state = stateRaw
+			}
+		case stateHex1:
+			switch {
+			case c >= '0' && c <= '9':
+				hexVal = (c - '0') << 4
+				state = stateHex2
+			case c >= 'A' && c <= 'F':
+				c += 'a' - 'A'
+
+				fallthrough
+			case c >= 'a' && c <= 'f':
+				hexVal = (c - 'a' + 10) << 4
+				state = stateHex2
+			default:
+				// invalid escape sequence, ignore
+				state = stateRaw
+			}
+		case stateHex2:
+			switch {
+			case c >= '0' && c <= '9':
+				hexVal |= c - '0'
+				b.WriteByte(hexVal)
+			case c >= 'A' && c <= 'F':
+				c += 'a' - 'A'
+
+				fallthrough
+			case c >= 'a' && c <= 'f':
+				hexVal |= c - 'a' + 10
+				b.WriteByte(hexVal)
+			}
+
+			state = stateRaw
+		}
+	}
+
+	return b.String()
 }
