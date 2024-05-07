@@ -63,6 +63,36 @@ func TestParseMessage(t *testing.T) {
 				Message:        "NET: Registered protocol family \\10\\ in µs",
 			},
 		},
+		{
+			input: `6,378,5140900,-,caller=T148;ata1: SATA max UDMA/133 abar m8192@0xf0820000 port 0xf0820100 irq 21`,
+			expected: kmsg.Message{
+				Facility:       kmsg.Kern,
+				Priority:       kmsg.Info,
+				SequenceNumber: 378,
+				Clock:          5140900,
+				Timestamp:      mustParse("0001-01-01 00:00:05.1409 +0000 UTC"),
+				Caller: kmsg.Caller{
+					Type: kmsg.ThreadCaller,
+					ID:   148,
+				},
+				Message: "ata1: SATA max UDMA/133 abar m8192@0xf0820000 port 0xf0820100 irq 21",
+			},
+		},
+		{
+			input: `0,380,5140900,-,caller=C10;watchdog: BUG: soft lockup - CPU#10 stuck for 216s! [softlockup_thre:529]`,
+			expected: kmsg.Message{
+				Facility:       kmsg.Kern,
+				Priority:       kmsg.Emerg,
+				SequenceNumber: 380,
+				Clock:          5140900,
+				Timestamp:      mustParse("0001-01-01 00:00:05.1409 +0000 UTC"),
+				Caller: kmsg.Caller{
+					Type: kmsg.CPUCaller,
+					ID:   10,
+				},
+				Message: "watchdog: BUG: soft lockup - CPU#10 stuck for 216s! [softlockup_thre:529]",
+			},
+		},
 	} {
 		message, err := kmsg.ParseMessage([]byte(testCase.input), time.Time{})
 		require.NoError(t, err)
