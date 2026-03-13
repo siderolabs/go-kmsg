@@ -104,7 +104,9 @@ LOOP:
 		case <-time.After(100 * time.Millisecond):
 			// abort
 			closed = true
+
 			ctxCancel()
+
 			assert.NoError(t, r.Close())
 		}
 	}
